@@ -16,7 +16,7 @@ video:
   output_dir: "data/outputs/"
 
 analytics:
-  congestion_threshold: 12   # vehicles in ROI = congestion
+  congestion_threshold: 10   # vehicles in ROI = congestion
   heatmap_alpha: 0.6         # overlay transparency
   stats_window_seconds: 10   # rolling window for averaging
 
