@@ -41,6 +41,8 @@ class ObjectDetector:
         3: "motorcycle",
         5: "bus",
         7: "truck",
+        9: "traffic light",
+        11: "stop sign"
     }
  
     def __init__(self, config_path: str = "configs/settings.yaml") -> None:
