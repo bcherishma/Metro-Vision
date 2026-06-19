@@ -14,7 +14,7 @@ class RoadAnomaly:
     confidence: float
     anomaly_type: str           # "pothole", "hump", "debris", etc.
     severity: str    
-              
+
     @property
     def center(self) -> tuple[float, float]:
         x1, y1, x2, y2 = self.bbox
@@ -24,3 +24,20 @@ class RoadAnomaly:
     def area(self) -> float:
         x1, y1, x2, y2 = self.bbox
         return (x2 - x1) * (y2 - y1)
+
+class AnomalyDetector:
+    
+    ANOMALY_CLASSES: dict[int, str] = {
+        0: "pothole",
+        1: "hump",
+        2: "debris",
+    }
+ 
+    SEVERITY_THRESHOLDS = {
+        "low":    5_000,    
+        "medium": 20_000,   
+        "high":   float("inf"),
+    }
+ 
+    # Only run anomaly detection on the bottom N% of the frame (road region)
+    ROAD_REGION_FRACTION: float = 0.55
