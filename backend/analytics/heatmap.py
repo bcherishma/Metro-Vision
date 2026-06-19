@@ -40,4 +40,64 @@ class HeatmapGenerator:
  
         self._frame_count += 1
  
-   
+    def get_overlay(self, frame_shape: Tuple[int, int, int]) -> np.ndarray:
+        """
+        Renders the current accumulated heatmap as a colored BGRA overlay.
+        """
+        h, w = frame_shape[:2]
+ 
+        if self._grid is None or self._grid.max() == 0:
+            return np.zeros((h, w, 4), dtype=np.uint8)
+ 
+        # Apply Gaussian blur 
+        blurred = gaussian_filter(self._grid, sigma=15)
+ 
+        normalised = cv2.normalize(
+            blurred, None, 0, 255, cv2.NORM_MINMAX
+        ).astype(np.uint8)
+ 
+        colored = cv2.applyColorMap(normalised, cv2.COLORMAP_JET)  
+ 
+        alpha_channel = normalised  
+        bgra = cv2.merge([
+            colored[:, :, 0],   # B
+            colored[:, :, 1],   # G
+            colored[:, :, 2],   # R
+            alpha_channel,      # A
+        ])
+ 
+        return bgra
+ 
+    def blend_onto_frame(
+        self, frame: np.ndarray, frame_shape: Tuple[int, int, int]
+    ) -> np.ndarray:
+        """
+        Blends the heatmap overlay onto a BGR frame.
+        """
+        overlay_bgra = self.get_overlay(frame_shape)
+        overlay_bgr = overlay_bgra[:, :, :3]
+        alpha_mask = overlay_bgra[:, :, 3:4].astype(np.float32) / 255.0
+ 
+        blended = (
+            frame.astype(np.float32) * (1 - alpha_mask * self.alpha)
+            + overlay_bgr.astype(np.float32) * alpha_mask * self.alpha
+        ).astype(np.uint8)
+ 
+        return blended
+ 
+    def get_heatmap_image(self) -> Optional[np.ndarray]:
+        
+        if self._grid is None or self._grid.max() == 0:
+            return None
+ 
+        blurred = gaussian_filter(self._grid, sigma=15)
+        normalised = cv2.normalize(
+            blurred, None, 0, 255, cv2.NORM_MINMAX
+        ).astype(np.uint8)
+        return cv2.applyColorMap(normalised, cv2.COLORMAP_JET)
+ 
+    def reset(self) -> None:
+        self._grid = None
+        self._frame_count = 0
+        logger.info("HeatmapGenerator reset.")
+ 
