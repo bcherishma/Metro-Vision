@@ -34,7 +34,8 @@ st.markdown("""
     /* Alert / info box */
     .stAlert { border-radius: 8px; }
 </style>
-""", unsafe_allow_html=True)
+""", 
+unsafe_allow_html=True)
 
 if "pipeline" not in st.session_state:
     st.session_state.pipeline = None
